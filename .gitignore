@@ -1,3 +1,10 @@
+baza.txt
+
+#CodeBlocks Files
+*.cbp
+*.depend
+*.layout
+
 # Prerequisites
 *.d
 
