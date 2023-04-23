@@ -41,7 +41,7 @@ string intToStr(int number) {
 
 bool isIdValid(vector<PersonalData> &personDataBase,int id) {
     bool isValid = false;
-    for (int i = 0; i < personDataBase.size(); i++) {
+    for (int i = 0; i < (int)personDataBase.size(); i++) {
         if (id == personDataBase.at(i).id) isValid = true;
     }
     return isValid;
@@ -96,7 +96,7 @@ void loadDataBase(vector<PersonalData> &personDataBase) {
         word.clear();
         personDataBase.push_back(person);
 
-        while( pos < line.length()) {
+        while( pos < (int)line.length()) {
 
             if (line[pos] == '|') {
                 categoryNum++;
@@ -123,7 +123,7 @@ void printEveryone(vector<PersonalData> &personDatabase) {
     system("cls");
     if (personDatabase.size() == 0) cout << "Ksiazka adresowa jest pusta!" << endl << endl;
     else {
-        for (int i = 0; i < personDatabase.size(); i++) {
+        for (int i = 0; i < (int)personDatabase.size(); i++) {
             printByPos(personDatabase, i);
         }
     }
@@ -133,7 +133,7 @@ int checkLastID(vector<PersonalData> &personDataBase) {
     if (personDataBase.empty()) id = 1;
     else {
         id = personDataBase.at(0).id;
-        for (int i = 1; i < personDataBase.size(); i++) {
+        for (int i = 1; i < (int)personDataBase.size(); i++) {
             if(id < personDataBase.at(i).id) id = personDataBase.at(i).id;
         }
     }
@@ -141,7 +141,7 @@ int checkLastID(vector<PersonalData> &personDataBase) {
 }
 int getPosByID(vector<PersonalData> &personDataBase, int id) {
     int pos = 0;
-    for (int i = 0; i < personDataBase.size(); i++ ) {
+    for (int i = 0; i < (int)personDataBase.size(); i++ ) {
         if (personDataBase.at(i).id == id) pos = i;
     }
     return pos;
@@ -157,7 +157,7 @@ void saveDataBase(vector<PersonalData> &personDataBase){
     fstream file;
     file.open("baza.txt", ios::out);
 
-    for (int i = 0; i < personDataBase.size(); i++) {
+    for (int i = 0; i < (int)personDataBase.size(); i++) {
         file << personToString(personDataBase.at(i));
         file << endl;
     }
@@ -284,7 +284,7 @@ void printByName(vector<PersonalData> &personDataBase) {
     cout << "Podaj szukane imie:";
     cin >> name;
 
-    for (int i = 0; i < personDataBase.size(); i++) {
+    for (int i = 0; i < (int)personDataBase.size(); i++) {
         if (name == personDataBase.at(i).name) {
             printByPos(personDataBase, i);
             counter++;
@@ -300,7 +300,7 @@ void printBySurname(vector<PersonalData> &personDataBase) {
     cout << "Podaj szukane nazwisko:";
     cin >> surname;
 
-    for (int i = 0; i < personDataBase.size(); i++) {
+    for (int i = 0; i < (int)personDataBase.size(); i++) {
         if (surname == personDataBase.at(i).surname) {
             printByPos(personDataBase, i);
             counter++;
