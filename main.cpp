@@ -6,6 +6,11 @@
 
 using namespace std;
 
+struct UserData{
+    int id;
+    string login;
+    string password;
+};
 struct PersonalData {
     int id;
     string name;
@@ -52,7 +57,9 @@ string personToString(PersonalData person) {
     string personString = intToStr(person.id) + "|" + person.name + "|" + person.surname + "|" + person.email + "|" + person.telephone + "|" + person.adress + "|";
     return personString;
 }
-
+string userToString(UserData user) {
+    return intToStr(user.id) + "|" + user.login + "|" + user.password + "|";
+}
 void assignToCategory(vector<PersonalData> &personDataBase, int caseNumber, string text){
     int lastPos;
     if (personDataBase.empty()) lastPos = 0;
@@ -81,6 +88,25 @@ void assignToCategory(vector<PersonalData> &personDataBase, int caseNumber, stri
 
     case 6:
         personDataBase.at(lastPos).adress = text;
+        break;
+    }
+}
+void assignToCategory(vector<UserData> &userDataBase, int caseNumber, string text) {
+    int lastPos;
+    if (userDataBase.empty()) lastPos = 0;
+    else lastPos = userDataBase.size() - 1;
+
+    switch(caseNumber) {
+    case 1:
+        userDataBase.at(lastPos).id = strToInt(text);
+        break;
+
+    case 2:
+        userDataBase.at(lastPos).login = text;
+        break;
+
+    case 3:
+        userDataBase.at(lastPos).password = text;
         break;
     }
 }
@@ -163,7 +189,6 @@ void saveDataBase(vector<PersonalData> &personDataBase){
     }
     file.close();
 }
-
 void editParameter(vector<PersonalData> &personDataBase, int pos, char parameterID)
 {
     switch(parameterID)
@@ -192,7 +217,6 @@ void editParameter(vector<PersonalData> &personDataBase, int pos, char parameter
             cout << endl << "Wprowadz nowy adres: ";
             personDataBase.at(pos).adress = loadLine();
             break;
-
         }
 
 }
@@ -226,7 +250,6 @@ void editPerson(vector<PersonalData> &personDataBase){
     }
     else cout << "Brak takiego ID w bazie!" <<endl, system("pause");
     }
-
 void addPerson(vector<PersonalData> &personDataBase) {
     PersonalData newPerson;
     if (personDataBase.empty()) newPerson.id = checkLastID(personDataBase);
@@ -273,9 +296,6 @@ void removePerson(vector<PersonalData> &personDataBase){
         }
     } else cout << "Brak takiego ID w bazie!" <<endl, system("pause");
 }
-
-
-
 void printByName(vector<PersonalData> &personDataBase) {
     string name;
     int counter = 0;
@@ -308,15 +328,133 @@ void printBySurname(vector<PersonalData> &personDataBase) {
     }
     if (counter == 0)  cout << endl << "Brak osob o takim nazwisku w bazie!" << endl;
 }
+void loadUsers(vector<UserData> &userDataBase) {
+    UserData user;
+    string line, word = "";
+    fstream file;
+    file.open("uzytkownicy.txt", ios::in);
+
+    while(getline(file, line)) {
+        int pos = 0, categoryNum = 0;
+        word.clear();
+        userDataBase.push_back(user);
+
+        while( pos < (int)line.length()) {
+
+            if (line[pos] == '|') {
+                categoryNum++;
+                assignToCategory(userDataBase, categoryNum, word);
+                pos++;
+                word.clear();
+            }
+            word += line[pos];
+            pos++;
+        }
+    }
+    file.close();
+}
+string userNameByID(vector<UserData> &userDataBase, int id) {
+    string name = "";
+    for (int i = 0; i < (int)userDataBase.size(); i++) {
+        if (userDataBase.at(i).id == id) name = userDataBase.at(i).login;
+    }
+    return name;
+}
+
+int signIn(vector<UserData> &userDataBase) {
+    string login;
+    string password;
+    int pos = 0;
+    int loggedUserID = 0;
+    bool userFound = false;
+    system("cls");
+
+    cout << "Podaj login: ";
+    login = loadLine();
+
+    cout << "Podaj haslo: ";
+    password = loadLine();
+
+    while (pos < (int)userDataBase.size() && !userFound) {
+        if (login == userDataBase.at(pos).login) {
+            if (password == userDataBase.at(pos).password) {
+                userFound = true;
+                loggedUserID = userDataBase.at(pos).id;
+            }
+        }
+        pos++;
+    }
+    if (pos >= (int)userDataBase.size() && !userFound ) {
+        cout << endl << "Bledny login lub haslo" << endl;
+        system("pause");
+    }
+    return loggedUserID;
+}
+void addUser(vector<UserData> &userDataBase) {
+    fstream file;
+    UserData newUser;
+    file.open("uzytkownicy.txt", ios::app);
+    system("cls");
+
+    cout << "         REJESTRACJA UZYTKOWNIKA" << endl << endl;
+
+    newUser.id = userDataBase.back().id + 1;
+    cout << "Podaj login     :";
+    newUser.login = loadLine();
+    cout << "Podaj haslo     :";
+    newUser.password = loadLine();
+
+    userDataBase.push_back(newUser);
+    file << userToString(newUser);
+    file << endl;
+    file.close();
+}
+void userMenu(vector<UserData> &userDataBase, int &loggedUserID) {
+    while(loggedUserID == 0) {
+        system("cls");
+
+        cout << "         WITAJ W KSIAZCE ADRESOWEJ" << endl;
+        cout << "              Wybierz opcje:" << endl << endl;
+
+        cout << "1. Logowanie" << endl;
+        cout << "2. Rejestracja uzytkownika" << endl;
+        cout << "9. Zamknij program" << endl;
+
+        char choice = getch();
+
+        switch(choice) {
+
+        case '1':
+            loggedUserID = signIn(userDataBase);
+            break;
+
+        case '2':
+            addUser(userDataBase);
+            break;
+
+        case '9':
+            exit(1);
+            break;
+        }
+        system("cls");
+    }
+}
 int main()
 {
     vector<PersonalData> personDataBase;
+    vector<UserData> userDataBase;
+    int loggedUserID = 0;
+
+    loadUsers(userDataBase);
+    userMenu(userDataBase, loggedUserID);
     loadDataBase(personDataBase);
 
     while (true)
     {
         cout << "         WITAJ W KSIAZCE ADRESOWEJ" << endl;
+        cout << "       Aktualny uzytkownik: " << userNameByID(userDataBase, loggedUserID) << endl << endl;
         cout << "              Wybierz opcje:" << endl << endl;
+
 
         cout << "1. Wyswietl zawartosc ksiazki adresowej" << endl;
         cout << "2. Dodaj pozycje do ksiazki adresowej" << endl;
