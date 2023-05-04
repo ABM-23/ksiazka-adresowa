@@ -59,38 +59,34 @@ string personToString(PersonalData person) {
 string userToString(UserData user) {
     return intToStr(user.id) + "|" + user.login + "|" + user.password + "|";
 }
-void assignToCategory(vector<PersonalData> &personDataBase, int caseNumber, string text){
-    int lastPos;
-    if (personDataBase.empty()) lastPos = 0;
-    else lastPos = personDataBase.size() - 1;
-
+void assignToCategory(PersonalData &person,vector<PersonalData> &personDataBase, int caseNumber, string text){
     switch(caseNumber) {
     case 1:
-        personDataBase.at(lastPos).id = strToInt(text);
+        person.id = strToInt(text);
         break;
 
     case 2:
-        personDataBase.at(lastPos).userId = strToInt(text);
+        person.userId = strToInt(text);
         break;
 
     case 3:
-        personDataBase.at(lastPos).name = text;
+        person.name = text;
         break;
 
     case 4:
-        personDataBase.at(lastPos).surname = text;
+        person.surname = text;
         break;
 
     case 5:
-        personDataBase.at(lastPos).email = text;
+        person.email = text;
         break;
 
     case 6:
-        personDataBase.at(lastPos).telephone = text;
+        person.telephone = text;
         break;
 
     case 7:
-        personDataBase.at(lastPos).adress = text;
+        person.adress = text;
         break;
     }
 }
@@ -113,8 +109,7 @@ void assignToCategory(vector<UserData> &userDataBase, int caseNumber, string tex
         break;
     }
 }
-void loadDataBase(vector<PersonalData> &personDataBase) {
-
+void loadDataBase(vector<PersonalData> &personDataBase, int loggedUserId) {
     PersonalData person;
     string line, word = "";
     fstream file;
@@ -123,19 +118,17 @@ void loadDataBase(vector<PersonalData> &personDataBase) {
     while(getline(file, line)) {
         int pos = 0, categoryNum = 0;
         word.clear();
-        personDataBase.push_back(person);
-
         while( pos < (int)line.length()) {
-
             if (line[pos] == '|') {
                 categoryNum++;
-                assignToCategory(personDataBase, categoryNum, word);
+                assignToCategory(person, personDataBase, categoryNum, word);
                 pos++;
                 word.clear();
             }
             word += line[pos];
             pos++;
         }
+        if(loggedUserId == person.userId) personDataBase.push_back(person);
     }
     file.close();
 }
@@ -508,8 +501,9 @@ int main()
 
     while(true) {
         userMenu(userDataBase, loggedUserID);
-        loadDataBase(personDataBase);
+        loadDataBase(personDataBase, loggedUserID);
         mainMenu(userDataBase, personDataBase, loggedUserID);
+        personDataBase.clear();
     }
     return 0;
 }
