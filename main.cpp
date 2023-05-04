@@ -13,6 +13,7 @@ struct UserData{
 };
 struct PersonalData {
     int id;
+    int userId;
     string name;
     string surname;
     string email;
@@ -43,7 +44,6 @@ string intToStr(int number) {
 
     return numberString;
 }
-
 bool isIdValid(vector<PersonalData> &personDataBase,int id) {
     bool isValid = false;
     for (int i = 0; i < (int)personDataBase.size(); i++) {
@@ -51,10 +51,9 @@ bool isIdValid(vector<PersonalData> &personDataBase,int id) {
     }
     return isValid;
 }
-
 string personToString(PersonalData person) {
 
-    string personString = intToStr(person.id) + "|" + person.name + "|" + person.surname + "|" + person.email + "|" + person.telephone + "|" + person.adress + "|";
+    string personString = intToStr(person.id) + "|" + intToStr(person.userId) + "|" + person.name + "|" + person.surname + "|" + person.email + "|" + person.telephone + "|" + person.adress + "|";
     return personString;
 }
 string userToString(UserData user) {
@@ -71,22 +70,26 @@ void assignToCategory(vector<PersonalData> &personDataBase, int caseNumber, stri
         break;
 
     case 2:
-        personDataBase.at(lastPos).name = text;
+        personDataBase.at(lastPos).userId = strToInt(text);
         break;
 
     case 3:
-        personDataBase.at(lastPos).surname = text;
+        personDataBase.at(lastPos).name = text;
         break;
 
     case 4:
-        personDataBase.at(lastPos).email = text;
+        personDataBase.at(lastPos).surname = text;
         break;
 
     case 5:
-        personDataBase.at(lastPos).telephone = text;
+        personDataBase.at(lastPos).email = text;
         break;
 
     case 6:
+        personDataBase.at(lastPos).telephone = text;
+        break;
+
+    case 7:
         personDataBase.at(lastPos).adress = text;
         break;
     }
@@ -250,10 +253,11 @@ void editPerson(vector<PersonalData> &personDataBase){
     }
     else cout << "Brak takiego ID w bazie!" <<endl, system("pause");
     }
-void addPerson(vector<PersonalData> &personDataBase) {
+void addPerson(vector<PersonalData> &personDataBase, int userId) {
     PersonalData newPerson;
     if (personDataBase.empty()) newPerson.id = checkLastID(personDataBase);
     else newPerson.id = checkLastID(personDataBase) + 1;
+    newPerson.userId = userId;
 
     system("cls");
 
@@ -360,7 +364,6 @@ string userNameByID(vector<UserData> &userDataBase, int id) {
     }
     return name;
 }
-
 int signIn(vector<UserData> &userDataBase) {
     string login;
     string password;
@@ -439,18 +442,8 @@ void userMenu(vector<UserData> &userDataBase, int &loggedUserID) {
         system("cls");
     }
 }
-int main()
-{
-    vector<PersonalData> personDataBase;
-    vector<UserData> userDataBase;
-    int loggedUserID = 0;
-
-    loadUsers(userDataBase);
-    userMenu(userDataBase, loggedUserID);
-    loadDataBase(personDataBase);
-
-    while (true)
-    {
+void mainMenu(vector<UserData> &userDataBase, vector<PersonalData> &personDataBase, int &loggedUserID){
+    while (loggedUserID != 0) {
         cout << "         WITAJ W KSIAZCE ADRESOWEJ" << endl;
         cout << "       Aktualny uzytkownik: " << userNameByID(userDataBase, loggedUserID) << endl << endl;
         cout << "              Wybierz opcje:" << endl << endl;
@@ -462,19 +455,19 @@ int main()
         cout << "4. Usun pozycje z ksiazki adresowej" << endl;
         cout << "5. Szukaj w ksiazce adresowej po imieniu" << endl;
         cout << "6. Szukaj w ksiazce adresowej po nazwisku" << endl;
+        cout << "7. Wyloguj uzytkownika" << endl;
         cout << "9. Zamknij program" << endl;
 
         char choice = getch();
 
-        switch(choice)
-        {
+        switch(choice) {
         case '1':
             printEveryone(personDataBase);
             system("pause");
             break;
 
         case '2':
-            addPerson(personDataBase);
+            addPerson(personDataBase, loggedUserID);
             break;
 
         case '3':
@@ -495,11 +488,28 @@ int main()
             system("pause");
             break;
 
+        case '7':
+            loggedUserID = 0;
+            break;
+
         case '9':
             exit(1);
             break;
         }
-    system("cls");
+        system("cls");
+    }
+}
+int main()
+{
+    vector<PersonalData> personDataBase;
+    vector<UserData> userDataBase;
+    int loggedUserID = 0;
+    loadUsers(userDataBase);
+
+    while(true) {
+        userMenu(userDataBase, loggedUserID);
+        loadDataBase(personDataBase);
+        mainMenu(userDataBase, personDataBase, loggedUserID);
     }
     return 0;
 }
