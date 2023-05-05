@@ -150,15 +150,21 @@ void printEveryone(vector<PersonalData> &personDatabase) {
         }
     }
 }
-int checkLastID(vector<PersonalData> &personDataBase) {
+int checkLastID() {
     int id;
-    if (personDataBase.empty()) id = 1;
+    string strId;
+    string line;
+    fstream file;
+
+    file.open("baza.txt", ios::in);
+    if (file.peek() == ifstream::traits_type::eof()) id = 0;
     else {
-        id = personDataBase.at(0).id;
-        for (int i = 1; i < (int)personDataBase.size(); i++) {
-            if(id < personDataBase.at(i).id) id = personDataBase.at(i).id;
+        while(getline(file, line)) {
+            strId = line[0];
         }
+        id = strToInt(strId);
     }
+    file.close();
     return id;
 }
 int getPosByID(vector<PersonalData> &personDataBase, int id) {
@@ -214,7 +220,6 @@ void editParameter(vector<PersonalData> &personDataBase, int pos, char parameter
             personDataBase.at(pos).adress = loadLine();
             break;
         }
-
 }
 void editPerson(vector<PersonalData> &personDataBase){
     int id;
@@ -248,8 +253,7 @@ void editPerson(vector<PersonalData> &personDataBase){
     }
 void addPerson(vector<PersonalData> &personDataBase, int userId) {
     PersonalData newPerson;
-    if (personDataBase.empty()) newPerson.id = checkLastID(personDataBase);
-    else newPerson.id = checkLastID(personDataBase) + 1;
+    newPerson.id = checkLastID() + 1;
     newPerson.userId = userId;
 
     system("cls");
