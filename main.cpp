@@ -429,7 +429,9 @@ void addUser(vector<UserData> &userDataBase) {
 
     cout << "         REJESTRACJA UZYTKOWNIKA" << endl << endl;
 
-    newUser.id = userDataBase.back().id + 1;
+    if (userDataBase.empty()) newUser.id = 1;
+    else newUser.id = userDataBase.back().id + 1;
+
     cout << "Podaj login     :";
     newUser.login = loadLine();
     cout << "Podaj haslo     :";
