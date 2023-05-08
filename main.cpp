@@ -52,9 +52,7 @@ bool isIdValid(vector<PersonalData> &personDataBase,int id) {
     return isValid;
 }
 string personToString(PersonalData person) {
-
-    string personString = intToStr(person.id) + "|" + intToStr(person.userId) + "|" + person.name + "|" + person.surname + "|" + person.email + "|" + person.telephone + "|" + person.adress + "|";
-    return personString;
+  return intToStr(person.id) + "|" + intToStr(person.userId) + "|" + person.name + "|" + person.surname + "|" + person.email + "|" + person.telephone + "|" + person.adress + "|";
 }
 string userToString(UserData user) {
     return intToStr(user.id) + "|" + user.login + "|" + user.password + "|";
@@ -181,6 +179,28 @@ void savePersonToFile(PersonalData newPerson){
     file << endl;
     file.close();
 }
+void makeTempEditedDataBase(vector<PersonalData> &personDataBase, int pos){
+    fstream file, temp;
+    int idOriginal;
+    int idEdited = personDataBase.at(pos).id;
+    string line;
+    file.open("baza.txt", ios::in);
+    temp.open("baza_temp.txt", ios::app);
+
+    while(getline(file, line)) {
+        idOriginal = line[0] - 48;
+        if (idOriginal == idEdited ) {
+            temp << personToString(personDataBase.at(pos));
+            temp << endl;
+        } else {
+            temp << line;
+            temp << endl;
+        }
+    }
+    file.close();
+    temp.close();
+}
+
 void saveDataBase(vector<PersonalData> &personDataBase){
     fstream file;
     file.open("baza.txt", ios::out);
@@ -191,8 +211,7 @@ void saveDataBase(vector<PersonalData> &personDataBase){
     }
     file.close();
 }
-void editParameter(vector<PersonalData> &personDataBase, int pos, char parameterID)
-{
+void editParameter(vector<PersonalData> &personDataBase, int pos, char parameterID) {
     switch(parameterID)
         {
         case '1':
@@ -221,7 +240,7 @@ void editParameter(vector<PersonalData> &personDataBase, int pos, char parameter
             break;
         }
 }
-void editPerson(vector<PersonalData> &personDataBase){
+void editPerson(vector<PersonalData> &personDataBase) {
     int id;
     char choice;
     printEveryone(personDataBase);
@@ -232,7 +251,7 @@ void editPerson(vector<PersonalData> &personDataBase){
     if(isIdValid(personDataBase, id)) {
         int pos = getPosByID(personDataBase, id);
 
-        while(choice != '9'){
+        while(choice != '9') {
             system("cls");
             printByPos(personDataBase, pos);
 
@@ -246,11 +265,13 @@ void editPerson(vector<PersonalData> &personDataBase){
             choice = getch();
 
             editParameter(personDataBase, pos, choice);
-            saveDataBase(personDataBase);
         }
-    }
-    else cout << "Brak takiego ID w bazie!" <<endl, system("pause");
-    }
+        makeTempEditedDataBase(personDataBase, pos);
+        remove("baza.txt");
+        rename("baza_temp.txt","baza.txt");
+
+    } else cout << "Brak takiego ID w bazie!" <<endl, system("pause");
+}
 void addPerson(vector<PersonalData> &personDataBase, int userId) {
     PersonalData newPerson;
     newPerson.id = checkLastID() + 1;
