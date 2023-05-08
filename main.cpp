@@ -179,7 +179,11 @@ void savePersonToFile(PersonalData newPerson){
     file << endl;
     file.close();
 }
-void makeTempEditedDataBase(vector<PersonalData> &personDataBase, int pos){
+void replaceOriginalWithTemp() {
+    remove("baza.txt");
+    rename("baza_temp.txt","baza.txt");
+}
+void makeTempDataBase(vector<PersonalData> &personDataBase, int pos){
     fstream file, temp;
     int idOriginal;
     int idEdited = personDataBase.at(pos).id;
@@ -200,16 +204,22 @@ void makeTempEditedDataBase(vector<PersonalData> &personDataBase, int pos){
     file.close();
     temp.close();
 }
+void makeTempDataBase(int idToRemove) {
+    fstream file, temp;
+    int idOriginal;
+    string line;
+    file.open("baza.txt", ios::in);
+    temp.open("baza_temp.txt", ios::app);
 
-void saveDataBase(vector<PersonalData> &personDataBase){
-    fstream file;
-    file.open("baza.txt", ios::out);
-
-    for (int i = 0; i < (int)personDataBase.size(); i++) {
-        file << personToString(personDataBase.at(i));
-        file << endl;
+    while(getline(file, line)) {
+        idOriginal = line[0] - 48;
+        if (idOriginal != idToRemove) {
+            temp << line;
+            temp << endl;
+        }
     }
     file.close();
+    temp.close();
 }
 void editParameter(vector<PersonalData> &personDataBase, int pos, char parameterID) {
     switch(parameterID)
@@ -266,9 +276,8 @@ void editPerson(vector<PersonalData> &personDataBase) {
 
             editParameter(personDataBase, pos, choice);
         }
-        makeTempEditedDataBase(personDataBase, pos);
-        remove("baza.txt");
-        rename("baza_temp.txt","baza.txt");
+        makeTempDataBase(personDataBase, pos);
+        replaceOriginalWithTemp();
 
     } else cout << "Brak takiego ID w bazie!" <<endl, system("pause");
 }
@@ -314,7 +323,8 @@ void removePerson(vector<PersonalData> &personDataBase){
 
         if (choice == 't') {
             personDataBase.erase(personDataBase.begin()+ pos);
-            saveDataBase(personDataBase);
+            makeTempDataBase(id);
+            replaceOriginalWithTemp();
         }
     } else cout << "Brak takiego ID w bazie!" <<endl, system("pause");
 }
